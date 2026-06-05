@@ -1,0 +1,158 @@
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import {
+  LayoutDashboard,
+  Inbox,
+  PlusCircle,
+  ListChecks,
+  ShieldCheck,
+  LogOut,
+  Building2,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
+import { ROLE_LABEL } from "@/lib/senac";
+
+export function AppSidebar() {
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
+  const router = useRouter();
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  const { profile, roles } = useSession();
+  const tecnico = isTecnico(roles);
+  const admin = isAdminLike(roles);
+
+  const isActive = (p: string) => path === p || path.startsWith(p + "/");
+
+  const itemsPrincipal = [
+    { title: "Portal", url: "/portal", icon: Inbox, show: true },
+    { title: "Novo chamado", url: "/chamados/novo", icon: PlusCircle, show: true },
+    { title: "Meus chamados", url: "/chamados", icon: ListChecks, show: true },
+  ];
+  const itemsTrabalho = [
+    { title: "Fila de atendimento", url: "/fila", icon: Inbox, show: tecnico || admin },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, show: admin || tecnico },
+  ];
+  const itemsAdmin = [
+    { title: "Administração", url: "/admin", icon: ShieldCheck, show: admin },
+  ];
+
+  const initials = (profile?.nome_completo ?? "?")
+    .split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-3 px-2 py-3">
+          <div className="h-9 w-9 rounded-md bg-gradient-primary grid place-items-center text-primary-foreground font-display font-bold shrink-0">S</div>
+          {!collapsed && (
+            <div className="leading-tight min-w-0">
+              <div className="font-display font-bold text-sm text-sidebar-foreground">Service Desk</div>
+              <div className="text-[10px] uppercase tracking-widest text-sidebar-foreground/60">SENAC-MA</div>
+            </div>
+          )}
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Solicitante</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {itemsPrincipal.filter((i) => i.show).map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {(tecnico || admin) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Atendimento</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {itemsTrabalho.filter((i) => i.show).map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <Link to={item.url} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {admin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {itemsAdmin.filter((i) => i.show).map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <Link to={item.url} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border">
+        <div className="flex items-center gap-3 px-2 py-2">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs">{initials}</AvatarFallback>
+          </Avatar>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-semibold text-sidebar-foreground truncate">{profile?.nome_completo ?? "..."}</div>
+              <div className="text-[10px] text-sidebar-foreground/70 truncate flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                {roles.map((r) => ROLE_LABEL[r]).join(", ") || "Solicitante"}
+              </div>
+            </div>
+          )}
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.navigate({ to: "/auth", replace: true });
+            }}
+            className="p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground/80"
+            title="Sair"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
