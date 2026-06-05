@@ -108,7 +108,7 @@ function Landing() {
         <div className="rounded-3xl bg-gradient-hero text-white p-10 lg:p-14 grid lg:grid-cols-2 gap-8 items-center shadow-elegant">
           <div>
             <BarChart3 className="h-10 w-10 text-primary-glow" />
-            <h3 className="mt-4 font-display text-3urated text-3xl font-bold">Indicadores em tempo real</h3>
+            <h3 className="mt-4 font-display text-3xl font-bold">Indicadores em tempo real</h3>
             <p className="mt-3 text-white/85">
               Dashboard com chamados ativos, SLA em dia, vencidos, distribuição por nível e por unidade.
               Auditoria completa de cada ação no sistema.
