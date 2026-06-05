@@ -11,7 +11,7 @@ import { NivelBadge, StatusBadge } from "@/components/chamado-badges";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Star, Play, ArrowUpRight, CheckCircle2, RotateCcw, X, Loader2 } from "lucide-react";
-import { formatSla, slaProgress, type ChamadoStatus, type Nivel, PRIORIDADE_LABEL } from "@/lib/senac";
+import { formatSla, slaProgress, type ChamadoStatus, type ChamadoPrioridade, type Nivel, PRIORIDADE_LABEL } from "@/lib/senac";
 
 export const Route = createFileRoute("/_authenticated/chamados/$id")({
   component: ChamadoDetalhe,
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/chamados/$id")({
 
 interface Chamado {
   id: string; numero: string; titulo: string; descricao: string;
-  status: ChamadoStatus; nivel: Nivel; prioridade: string;
+  status: ChamadoStatus; nivel: Nivel; prioridade: ChamadoPrioridade;
   solicitante_id: string; tecnico_id: string | null;
   unidade_id: string; setor: string; subcategoria_id: string;
   sla_resposta_min: number; sla_solucao_min: number;
