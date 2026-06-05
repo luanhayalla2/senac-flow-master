@@ -14,16 +14,357 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      avaliacoes: {
+        Row: {
+          agilidade: number
+          atendimento: number
+          chamado_id: string
+          comentario: string | null
+          comunicacao: number
+          criado_em: string
+          geral: number
+          id: string
+          qualidade: number
+        }
+        Insert: {
+          agilidade: number
+          atendimento: number
+          chamado_id: string
+          comentario?: string | null
+          comunicacao: number
+          criado_em?: string
+          geral: number
+          id?: string
+          qualidade: number
+        }
+        Update: {
+          agilidade?: number
+          atendimento?: number
+          chamado_id?: string
+          comentario?: string | null
+          comunicacao?: number
+          criado_em?: string
+          geral?: number
+          id?: string
+          qualidade?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_chamado_id_fkey"
+            columns: ["chamado_id"]
+            isOneToOne: true
+            referencedRelation: "chamados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categorias: {
+        Row: {
+          icone: string | null
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          icone?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+        }
+        Update: {
+          icone?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
+      chamado_historico: {
+        Row: {
+          acao: string
+          autor_id: string | null
+          chamado_id: string
+          criado_em: string
+          detalhes: Json | null
+          id: string
+        }
+        Insert: {
+          acao: string
+          autor_id?: string | null
+          chamado_id: string
+          criado_em?: string
+          detalhes?: Json | null
+          id?: string
+        }
+        Update: {
+          acao?: string
+          autor_id?: string | null
+          chamado_id?: string
+          criado_em?: string
+          detalhes?: Json | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chamado_historico_chamado_id_fkey"
+            columns: ["chamado_id"]
+            isOneToOne: false
+            referencedRelation: "chamados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chamados: {
+        Row: {
+          aberto_em: string
+          atualizado_em: string
+          descricao: string
+          fechado_em: string | null
+          id: string
+          motivo_reabertura: string | null
+          nivel: Database["public"]["Enums"]["nivel_atendimento"]
+          numero: string
+          primeiro_atendimento_em: string | null
+          prioridade: Database["public"]["Enums"]["chamado_prioridade"]
+          resolvido_em: string | null
+          setor: string
+          sla_resposta_min: number
+          sla_solucao_min: number
+          solicitante_id: string
+          solucao: string | null
+          status: Database["public"]["Enums"]["chamado_status"]
+          subcategoria_id: string
+          tecnico_id: string | null
+          titulo: string
+          unidade_id: string
+        }
+        Insert: {
+          aberto_em?: string
+          atualizado_em?: string
+          descricao: string
+          fechado_em?: string | null
+          id?: string
+          motivo_reabertura?: string | null
+          nivel: Database["public"]["Enums"]["nivel_atendimento"]
+          numero: string
+          primeiro_atendimento_em?: string | null
+          prioridade?: Database["public"]["Enums"]["chamado_prioridade"]
+          resolvido_em?: string | null
+          setor: string
+          sla_resposta_min: number
+          sla_solucao_min: number
+          solicitante_id: string
+          solucao?: string | null
+          status?: Database["public"]["Enums"]["chamado_status"]
+          subcategoria_id: string
+          tecnico_id?: string | null
+          titulo: string
+          unidade_id: string
+        }
+        Update: {
+          aberto_em?: string
+          atualizado_em?: string
+          descricao?: string
+          fechado_em?: string | null
+          id?: string
+          motivo_reabertura?: string | null
+          nivel?: Database["public"]["Enums"]["nivel_atendimento"]
+          numero?: string
+          primeiro_atendimento_em?: string | null
+          prioridade?: Database["public"]["Enums"]["chamado_prioridade"]
+          resolvido_em?: string | null
+          setor?: string
+          sla_resposta_min?: number
+          sla_solucao_min?: number
+          solicitante_id?: string
+          solucao?: string | null
+          status?: Database["public"]["Enums"]["chamado_status"]
+          subcategoria_id?: string
+          tecnico_id?: string | null
+          titulo?: string
+          unidade_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chamados_subcategoria_id_fkey"
+            columns: ["subcategoria_id"]
+            isOneToOne: false
+            referencedRelation: "subcategorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chamados_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          email: string
+          id: string
+          matricula: string | null
+          nome_completo: string
+          setor: string | null
+          unidade_id: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          email: string
+          id: string
+          matricula?: string | null
+          nome_completo: string
+          setor?: string | null
+          unidade_id?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          email?: string
+          id?: string
+          matricula?: string | null
+          nome_completo?: string
+          setor?: string | null
+          unidade_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subcategorias: {
+        Row: {
+          ativo: boolean
+          categoria_id: string
+          descricao: string | null
+          id: string
+          nivel: Database["public"]["Enums"]["nivel_atendimento"]
+          nome: string
+          sla_resposta_min: number
+          sla_solucao_min: number
+        }
+        Insert: {
+          ativo?: boolean
+          categoria_id: string
+          descricao?: string | null
+          id?: string
+          nivel: Database["public"]["Enums"]["nivel_atendimento"]
+          nome: string
+          sla_resposta_min: number
+          sla_solucao_min: number
+        }
+        Update: {
+          ativo?: boolean
+          categoria_id?: string
+          descricao?: string | null
+          id?: string
+          nivel?: Database["public"]["Enums"]["nivel_atendimento"]
+          nome?: string
+          sla_resposta_min?: number
+          sla_solucao_min?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategorias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unidades: {
+        Row: {
+          cidade: string
+          codigo: string
+          criado_em: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          cidade: string
+          codigo: string
+          criado_em?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          cidade?: string
+          codigo?: string
+          criado_em?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          criado_em: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_tecnico: { Args: { _user_id: string }; Returns: boolean }
+      niveis_visiveis: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["nivel_atendimento"][]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "solicitante"
+        | "tecnico_n1"
+        | "tecnico_n2"
+        | "tecnico_n3"
+        | "coordenador"
+        | "gestor"
+        | "admin"
+      chamado_prioridade: "baixa" | "media" | "alta" | "critica"
+      chamado_status:
+        | "aberto"
+        | "em_atendimento"
+        | "escalonado"
+        | "resolvido"
+        | "fechado"
+        | "reaberto"
+      nivel_atendimento: "n1" | "n2" | "n3"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +491,26 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "solicitante",
+        "tecnico_n1",
+        "tecnico_n2",
+        "tecnico_n3",
+        "coordenador",
+        "gestor",
+        "admin",
+      ],
+      chamado_prioridade: ["baixa", "media", "alta", "critica"],
+      chamado_status: [
+        "aberto",
+        "em_atendimento",
+        "escalonado",
+        "resolvido",
+        "fechado",
+        "reaberto",
+      ],
+      nivel_atendimento: ["n1", "n2", "n3"],
+    },
   },
 } as const
