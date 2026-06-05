@@ -1,4 +1,5 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import senacLogo from "@/assets/senac-logo.png";
 import {
   LayoutDashboard,
   Inbox,
