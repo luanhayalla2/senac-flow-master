@@ -58,7 +58,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-3 px-2 py-3">
-          <div className="h-9 w-9 rounded-md bg-gradient-primary grid place-items-center text-primary-foreground font-display font-bold shrink-0">S</div>
+          <img src={senacLogo} alt="SENAC" width={36} height={36} className="h-9 w-9 rounded-md object-contain shrink-0" />
           {!collapsed && (
             <div className="leading-tight min-w-0">
               <div className="font-display font-bold text-sm text-sidebar-foreground">Service Desk</div>
