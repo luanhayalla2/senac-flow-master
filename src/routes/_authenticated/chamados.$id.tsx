@@ -85,7 +85,7 @@ function ChamadoDetalhe() {
                 <div className="flex gap-2 mt-2 flex-wrap">
                   <NivelBadge nivel={chamado.nivel} />
                   <StatusBadge status={chamado.status} />
-                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground px-2 py-0.5 border rounded">{PRIORIDADE_LABEL[chamado.prioridade as keyof typeof PRIORIDADE_LABEL]}</span>
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground px-2 py-0.5 border rounded">{PRIORIDADE_LABEL[chamado.prioridade]}</span>
                 </div>
               </div>
             </div>
