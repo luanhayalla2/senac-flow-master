@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Development server settings to avoid cross‑origin frame errors
+  server: {
+    host: true,        // listen on all interfaces (0.0.0.0)
+    cors: true,        // enable CORS headers for iframe usage
+    strictPort: true, // fail if the default port is unavailable
+  },
 });
