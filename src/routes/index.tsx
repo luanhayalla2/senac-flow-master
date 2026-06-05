@@ -19,7 +19,7 @@ function Landing() {
       <header className="border-b bg-background/80 backdrop-blur sticky top-0 z-10">
         <div className="container mx-auto flex h-16 items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-md bg-gradient-primary grid place-items-center text-primary-foreground font-display font-bold">S</div>
+            <img src={senacLogo} alt="SENAC" width={36} height={36} className="h-9 w-9 rounded-md object-contain" />
             <div className="leading-tight">
               <div className="font-display font-bold text-sm">SENAC Service Desk</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Enterprise · MA</div>
