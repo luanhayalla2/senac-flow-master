@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShieldCheck } from "lucide-react";
+import senacLogo from "@/assets/senac-logo.png";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
