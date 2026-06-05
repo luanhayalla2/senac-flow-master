@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShieldCheck } from "lucide-react";
+import senacLogo from "@/assets/senac-logo.png";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -48,7 +49,7 @@ function AuthPage() {
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex bg-gradient-hero text-white p-12 flex-col justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-white/15 grid place-items-center font-display font-bold backdrop-blur">S</div>
+          <img src={senacLogo} alt="SENAC" width={40} height={40} className="h-10 w-10 rounded-lg object-contain bg-white/15 backdrop-blur" />
           <div>
             <div className="font-display font-bold">SENAC Service Desk</div>
             <div className="text-xs uppercase tracking-widest text-white/70">Enterprise · MA</div>
