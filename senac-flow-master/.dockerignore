@@ -1,9 +1,0 @@
-node_modules
-/dist
-Dockerfile
-.dockerignore
-.git
-.gitignore
-.vscode
-npm-debug.log
-yarn-error.log
