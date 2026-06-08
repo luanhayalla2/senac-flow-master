@@ -250,10 +250,21 @@ function ValidacaoSolicitante({ chamado, onChange }: { chamado: Chamado; onChang
     toast.success("Chamado reaberto");
     onChange();
   };
+  const prazo = chamado.prazo_validacao ? new Date(chamado.prazo_validacao) : null;
+  const diasRest = prazo ? Math.max(0, Math.ceil((prazo.getTime() - Date.now()) / 86400000)) : null;
   return (
     <Card>
       <CardHeader><CardTitle className="font-display text-base">Validar solução</CardTitle></CardHeader>
       <CardContent className="space-y-3">
+        {prazo && (
+          <div className="rounded-md border bg-warning/10 border-warning/40 p-3 text-xs flex items-start gap-2">
+            <Clock className="h-4 w-4 mt-0.5 text-warning-foreground shrink-0" />
+            <div>
+              <div className="font-medium">Fechamento automático em {diasRest} dia(s)</div>
+              <div className="text-muted-foreground">Prazo: {prazo.toLocaleString("pt-BR")}. Sem ação até lá, o chamado é encerrado.</div>
+            </div>
+          </div>
+        )}
         <Button className="w-full" onClick={aceitar}><CheckCircle2 className="h-4 w-4 mr-2" />Aceitar solução</Button>
         <div className="text-xs text-center text-muted-foreground">ou</div>
         <Textarea rows={2} placeholder="Motivo da reabertura" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
