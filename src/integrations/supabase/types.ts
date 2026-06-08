@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      alertas_sla: {
+        Row: {
+          chamado_id: string
+          criado_em: string
+          destinatario_id: string
+          id: string
+          lido_em: string | null
+          mensagem: string
+          tipo: Database["public"]["Enums"]["alerta_sla_tipo"]
+        }
+        Insert: {
+          chamado_id: string
+          criado_em?: string
+          destinatario_id: string
+          id?: string
+          lido_em?: string | null
+          mensagem: string
+          tipo: Database["public"]["Enums"]["alerta_sla_tipo"]
+        }
+        Update: {
+          chamado_id?: string
+          criado_em?: string
+          destinatario_id?: string
+          id?: string
+          lido_em?: string | null
+          mensagem?: string
+          tipo?: Database["public"]["Enums"]["alerta_sla_tipo"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alertas_sla_chamado_id_fkey"
+            columns: ["chamado_id"]
+            isOneToOne: false
+            referencedRelation: "chamados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avaliacoes: {
         Row: {
           agilidade: number
@@ -124,6 +162,7 @@ export type Database = {
           motivo_reabertura: string | null
           nivel: Database["public"]["Enums"]["nivel_atendimento"]
           numero: string
+          prazo_validacao: string | null
           primeiro_atendimento_em: string | null
           prioridade: Database["public"]["Enums"]["chamado_prioridade"]
           resolvido_em: string | null
@@ -147,6 +186,7 @@ export type Database = {
           motivo_reabertura?: string | null
           nivel: Database["public"]["Enums"]["nivel_atendimento"]
           numero: string
+          prazo_validacao?: string | null
           primeiro_atendimento_em?: string | null
           prioridade?: Database["public"]["Enums"]["chamado_prioridade"]
           resolvido_em?: string | null
@@ -170,6 +210,7 @@ export type Database = {
           motivo_reabertura?: string | null
           nivel?: Database["public"]["Enums"]["nivel_atendimento"]
           numero?: string
+          prazo_validacao?: string | null
           primeiro_atendimento_em?: string | null
           prioridade?: Database["public"]["Enums"]["chamado_prioridade"]
           resolvido_em?: string | null
@@ -333,6 +374,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      adicionar_dias_uteis: {
+        Args: { _dias: number; _ts: string }
+        Returns: string
+      }
+      fechar_chamados_expirados: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -346,8 +392,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["nivel_atendimento"][]
       }
+      verificar_sla: { Args: never; Returns: number }
     }
     Enums: {
+      alerta_sla_tipo: "proximo_vencimento" | "violado"
       app_role:
         | "solicitante"
         | "tecnico_n1"
@@ -492,6 +540,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      alerta_sla_tipo: ["proximo_vencimento", "violado"],
       app_role: [
         "solicitante",
         "tecnico_n1",

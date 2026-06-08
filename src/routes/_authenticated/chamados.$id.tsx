@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { NivelBadge, StatusBadge } from "@/components/chamado-badges";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Star, Play, ArrowUpRight, CheckCircle2, RotateCcw, X, Loader2 } from "lucide-react";
+import { Star, Play, ArrowUpRight, CheckCircle2, RotateCcw, Loader2, Clock } from "lucide-react";
 import { formatSla, slaProgress, type ChamadoStatus, type ChamadoPrioridade, type Nivel, PRIORIDADE_LABEL } from "@/lib/senac";
+import { TimelineAuditoria } from "@/components/timeline-auditoria";
 
 export const Route = createFileRoute("/_authenticated/chamados/$id")({
   component: ChamadoDetalhe,
@@ -25,13 +26,12 @@ interface Chamado {
   sla_resposta_min: number; sla_solucao_min: number;
   aberto_em: string; primeiro_atendimento_em: string | null;
   resolvido_em: string | null; fechado_em: string | null;
+  prazo_validacao: string | null;
   solucao: string | null;
 }
-interface Hist { id: string; acao: string; detalhes: Record<string, unknown> | null; criado_em: string; autor_id: string | null }
 
 function ChamadoDetalhe() {
   const { id } = Route.useParams();
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const { user, roles } = useSession();
   const tecnico = isTecnico(roles);
@@ -46,13 +46,6 @@ function ChamadoDetalhe() {
     },
   });
 
-  const { data: historico } = useQuery({
-    queryKey: ["chamado-hist", id],
-    queryFn: async () => {
-      const { data } = await supabase.from("chamado_historico").select("*").eq("chamado_id", id).order("criado_em", { ascending: true });
-      return (data ?? []) as Hist[];
-    },
-  });
 
   const { data: avaliacao } = useQuery({
     queryKey: ["chamado-aval", id],
@@ -120,22 +113,11 @@ function ChamadoDetalhe() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="font-display text-base">Histórico</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-display text-base">Auditoria do chamado</CardTitle>
+          </CardHeader>
           <CardContent>
-            <ol className="relative border-l ml-2 space-y-4">
-              {historico?.map((h) => (
-                <li key={h.id} className="ml-4">
-                  <div className="absolute -left-1.5 h-3 w-3 rounded-full bg-primary mt-1.5" />
-                  <div className="text-sm font-medium capitalize">{h.acao.replace("_"," ")}</div>
-                  <div className="text-xs text-muted-foreground">{new Date(h.criado_em).toLocaleString("pt-BR")}</div>
-                  {h.detalhes && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {Object.entries(h.detalhes).map(([k, v]) => <span key={k} className="mr-3"><b>{k}:</b> {String(v)}</span>)}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ol>
+            <TimelineAuditoria chamadoId={chamado.id} numero={chamado.numero} />
           </CardContent>
         </Card>
       </div>
@@ -268,10 +250,21 @@ function ValidacaoSolicitante({ chamado, onChange }: { chamado: Chamado; onChang
     toast.success("Chamado reaberto");
     onChange();
   };
+  const prazo = chamado.prazo_validacao ? new Date(chamado.prazo_validacao) : null;
+  const diasRest = prazo ? Math.max(0, Math.ceil((prazo.getTime() - Date.now()) / 86400000)) : null;
   return (
     <Card>
       <CardHeader><CardTitle className="font-display text-base">Validar solução</CardTitle></CardHeader>
       <CardContent className="space-y-3">
+        {prazo && (
+          <div className="rounded-md border bg-warning/10 border-warning/40 p-3 text-xs flex items-start gap-2">
+            <Clock className="h-4 w-4 mt-0.5 text-warning-foreground shrink-0" />
+            <div>
+              <div className="font-medium">Fechamento automático em {diasRest} dia(s)</div>
+              <div className="text-muted-foreground">Prazo: {prazo.toLocaleString("pt-BR")}. Sem ação até lá, o chamado é encerrado.</div>
+            </div>
+          </div>
+        )}
         <Button className="w-full" onClick={aceitar}><CheckCircle2 className="h-4 w-4 mr-2" />Aceitar solução</Button>
         <div className="text-xs text-center text-muted-foreground">ou</div>
         <Textarea rows={2} placeholder="Motivo da reabertura" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
