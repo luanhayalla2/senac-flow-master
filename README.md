@@ -1,85 +1,159 @@
-SENAC Service Help Desk
-🌟 Visão geral
-SENAC Service Help Desk é um portal de atendimento corporativo desenvolvido com React, TanStack Router, Vite, e Supabase. Ele fornece um fluxo completo de abertura, classificação automática (N1/N2/N3) e gestão de SLAs, seguindo as melhores práticas de ITIL. A UI foi construída com Tailwind CSS, Radix UI e componentes customizados, proporcionando uma experiência moderna, responsiva e altamente acessível.
+# SENAC Service Help Desk
 
-📦 Tecnologias principais
-React 19 – UI declarativa e reativa.
-TanStack Router 1 – roteamento avançado com carregamento assíncrono.
-Vite 7 – bundler rápido e suporte a HMR.
-Supabase – backend completo (autenticação, storage, PostgreSQL).
-Tailwind CSS 4 – design system configurável com cores institucionais SENAC.
-Radix UI – componentes acessíveis.
-Zod – validação de esquemas de dados.
-Docker – containerização para produção.
-Vercel – deployment simplificado (configurado em vercel.json).
-🚀 Começando (local)
-Requisitos: Node 20 (LTS) ou bun (opcional) e Docker (para container). O projeto usa npm, mas aceita bun.
+![SENAC Logo](https://via.placeholder.com/150x50?text=SENAC+Logo) <!-- Substitua pela URL da logo real do SENAC, se necessário -->
 
-# Clone o repositório (já está em sua máquina)
-cd c:/Users/aluno/Downloads/senac-flow-master/senac-flow-master
+> **SENAC Service Help Desk** é um portal de atendimento corporativo moderno e eficiente.
 
-# Instalar dependências
-npm install   # ou "bun install" se preferir
+## 🌟 Visão Geral
 
-# Iniciar ambiente de desenvolvimento
-npm run dev   # Vite dev server → http://localhost:5173
-Dica: Caso enfrente conflitos de peer‑dependencies, use npm install --legacy-peer-deps (já configurado no Dockerfile).
+O **SENAC Service Help Desk** foi desenvolvido para fornecer um fluxo completo de abertura de chamados, classificação automática em níveis de suporte (N1, N2 e N3) e gestão de SLAs. O sistema foi projetado seguindo as melhores práticas da biblioteca **ITIL**, garantindo excelência operacional. 
 
-🐳 Executando via Docker
-# Build da imagem
+A interface de usuário foi construída visando fornecer uma experiência moderna, responsiva e altamente acessível aos usuários e atendentes.
+
+---
+
+## 📦 Tecnologias Principais
+
+O projeto utiliza um stack moderno focado em performance, reatividade e boa experiência de desenvolvimento:
+
+- **[React 19](https://react.dev/)** – Interface de usuário declarativa e reativa.
+- **[TanStack Router](https://tanstack.com/router/latest)** – Roteamento avançado com tipagem forte e carregamento assíncrono.
+- **[Vite 7](https://vitejs.dev/)** – Bundler extremamente rápido com suporte a Hot Module Replacement (HMR).
+- **[Supabase](https://supabase.com/)** – Backend as a Service completo, provendo Autenticação, Storage e banco de dados PostgreSQL.
+- **[Tailwind CSS 4](https://tailwindcss.com/)** – Design system configurável e estilização utilitária com as cores institucionais do SENAC.
+- **[Radix UI](https://www.radix-ui.com/)** – Componentes primitivos, não estilizados e altamente acessíveis.
+- **[Zod](https://zod.dev/)** – Validação de esquemas e dados.
+- **Docker** – Containerização para padronização de ambientes e produção.
+- **Vercel** – Plataforma para deployment simplificado.
+
+---
+
+## 🚀 Como Executar (Localmente)
+
+**Requisitos Pré-vistos:**
+- [Node.js 20 LTS](https://nodejs.org/) ou [Bun](https://bun.sh/)
+- [Docker](https://www.docker.com/) (opcional, caso queira rodar via container)
+
+### 1. Clone o repositório
+Caso não tenha clonado ainda:
+```bash
+git clone https://github.com/luanhayalla2/senac-flow-master.git
+cd senac-flow-master
+```
+
+### 2. Instale as dependências
+```bash
+npm install
+# ou utilize "bun install"
+```
+> **Dica**: Caso enfrente conflitos de `peer-dependencies`, utilize `npm install --legacy-peer-deps`.
+
+### 3. Inicie o servidor de desenvolvimento
+```bash
+npm run dev
+```
+A aplicação estará disponível em [http://localhost:5173](http://localhost:5173).
+
+---
+
+## 🐳 Executando via Docker
+
+Se preferir rodar a aplicação em um container Docker isolado:
+
+1. **Faça o build da imagem:**
+```bash
 docker build -t senac-service-help-desk .
+```
 
-# Executar o container
+2. **Execute o container:**
+```bash
 docker run -p 8080:80 senac-service-help-desk
-A aplicação ficará disponível em http://localhost:8080.
+```
+Acesse a aplicação em [http://localhost:8080](http://localhost:8080).
 
-📦 Deploy na Vercel
-O arquivo vercel.json já contém a configuração necessária:
+---
 
-{
-  "builds": [{ "src": "vite.config.ts", "use": "@vercel/static-build" }],
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
-}
-Crie um projeto na Vercel.
-Conecte o repositório.
-Defina npm install --legacy-peer-deps && npm run build como comando de build.
-Deploy automático.
-🔐 Autenticação
-O fluxo de login utiliza Supabase Auth com credenciais institucionais. Usuários são redirecionados para /portal após autenticação bem‑sucedida.
+## 📦 Deploy na Vercel
 
-📂 Estrutura de pastas
+O projeto já conta com o arquivo `vercel.json` configurado para facilitar o deploy na Vercel.
+
+**Passo a passo:**
+1. Crie um projeto no dashboard da Vercel.
+2. Conecte este repositório do GitHub.
+3. Defina o comando de build como:
+   `npm install --legacy-peer-deps && npm run build`
+4. Acione o Deploy Automático.
+
+---
+
+## 🔐 Autenticação
+
+A aplicação utiliza **Supabase Auth** para gerenciamento de credenciais institucionais. Após a autenticação bem-sucedida, os usuários são automaticamente redirecionados para a rota restrita `/portal`.
+
+---
+
+## 📂 Estrutura de Diretórios
+
+Abaixo está um resumo da estrutura de pastas da aplicação:
+
+```text
 src/
-├─ assets/            # logotipo (senac_service_help_desk_logo.png)
-├─ components/        # UI reutilizável (Sidebar, Header, etc.)
-├─ hooks/             # hooks de sessão e autorização
-├─ integrations/      # cliente Supabase
-├─ routes/            # rotas do TanStack Router
-│   ├─ __root.tsx
-│   ├─ auth.tsx
-│   ├─ index.tsx
-│   └─ _authenticated/…
-├─ styles.css         # Tailwind & design tokens
-└─ vite.config.ts     # configuração Vite/TanStack
-🧪 Testes & qualidade
-ESLint 9 + Prettier 3 – lint e formatação automática.
-Sonner – toast notifications.
-Zod – validação de formulários.
-Código está tipado com TypeScript 5.
-📚 Documentação adicional
-Design System – src/styles.css contém as cores institucional SENAC (#F57C00 laranja, #003B71 azul) e tokens de tipografia.
-Fluxo operacional – veja operational_flow.md para detalhamento das etapas de atendimento.
-Roadmap – adicione tarefas em task.md conforme evolui o projeto.
-🤝 Contribuindo
-Fork o repositório.
-Crie uma branch (git checkout -b feature/nome).
-Commit as mudanças (git commit -m "feat: descrição").
-Abra um Pull Request.
-📜 Licença
-Este projeto está licenciado sob a MIT License – sinta‑se livre para usar, modificar e distribuir.
+├─ assets/            # Imagens e logotipos
+├─ components/        # Componentes UI reutilizáveis (Sidebar, Header, Botões, etc.)
+├─ hooks/             # Custom Hooks do React (sessão, autorização, etc.)
+├─ integrations/      # Cliente e integrações do Supabase
+├─ routes/            # Configurações de rotas do TanStack Router
+│   ├─ __root.tsx     # Layout base principal
+│   ├─ auth.tsx       # Rota de autenticação
+│   ├─ index.tsx      # Rota inicial
+│   └─ _authenticated/# Rotas protegidas que exigem login
+├─ styles.css         # Importações do Tailwind e design tokens customizados
+└─ vite.config.ts     # Configurações do Vite e plugins do TanStack
+```
 
-📞 Contato
-Equipe SENAC Service Help Desk
+---
 
-Email: suporte@senc-ma.senac.br
-Slack: #senac-service-help-desk
-Feito com ❤️ por desenvolvedores apaixonados por excelência em atendimento.
+## 🧪 Qualidade e Testes
+
+O projeto adota ferramentas consolidadas para garantir a saúde e padronização da base de código:
+
+- **TypeScript 5**: Tipagem estática rigorosa por todo o sistema.
+- **ESLint 9 & Prettier 3**: Análise estática, formatação automática e enforcement de boas práticas.
+- **Sonner**: Gerenciamento eficiente e bonito de Toast Notifications.
+- **Zod**: Validação de formulários e segurança de tipos em runtime.
+
+---
+
+## 📚 Documentação Adicional
+
+- **Design System:** O arquivo `src/styles.css` contém os tokens de tipografia e as cores institucionais do SENAC (`#F57C00` Laranja, `#003B71` Azul).
+- **Fluxo Operacional:** Acesse o arquivo `operational_flow.md` para um detalhamento profundo sobre as etapas de atendimento e fluxos ITIL.
+- **Roadmap:** Acesse o arquivo `task.md` para acompanhar a evolução e tarefas pendentes do projeto.
+
+---
+
+## 🤝 Contribuindo
+
+Sinta-se à vontade para contribuir com a evolução deste portal:
+
+1. Faça um **Fork** do repositório.
+2. Crie uma nova branch para sua funcionalidade ou correção: `git checkout -b feature/minha-feature`.
+3. Faça o commit das suas alterações: `git commit -m "feat: adiciona nova funcionalidade XYZ"`.
+4. Envie as modificações para o seu fork: `git push origin feature/minha-feature`.
+5. Abra um **Pull Request**.
+
+---
+
+## 📜 Licença
+
+Este projeto está licenciado sob a **MIT License**. Sinta-se livre para utilizar, modificar e distribuir o código-fonte deste software.
+
+---
+
+## 📞 Contato
+
+**Equipe SENAC Service Help Desk**
+- **Email:** [suporte@senc-ma.senac.br](mailto:suporte@senc-ma.senac.br)
+- **Slack:** `#senac-service-help-desk`
+
+> Desenvolvido com ❤️ por desenvolvedores apaixonados por excelência no atendimento.
