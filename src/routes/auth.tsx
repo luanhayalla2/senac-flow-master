@@ -437,7 +437,7 @@ function FormCadastrar({
 }
 
 // ---------- Esqueceu a senha ----------
-function EsqueceuSenhaDialog({ emailInicial }: { emailInicial: string }) {
+export function EsqueceuSenhaDialog({ emailInicial }: { emailInicial: string }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(emailInicial);
   const [loading, setLoading] = useState(false);
