@@ -123,21 +123,17 @@ describe("Fluxo E2E — Esqueceu a senha (diálogo)", () => {
 // =================== Reset password — recovery ===================
 describe("Fluxo E2E — Página /reset-password (expiração do recovery)", () => {
   it("exibe mensagem de link expirado quando não há sessão de recovery", async () => {
-    vi.useFakeTimers();
     supabaseMock.auth.getSession.mockResolvedValue({ data: { session: null } });
 
     render(<ResetPasswordPage />);
     expect(screen.getByText(/validando link de recuperação/i)).toBeInTheDocument();
 
-    // resolve a Promise do getSession e dispara o setTimeout(1500ms)
-    await vi.runAllTimersAsync();
-
     expect(
-      await screen.findByText(/link inválido ou expirado/i),
+      await screen.findByText(/link inválido ou expirado/i, undefined, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.getByText(/solicite um novo/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/nova senha/i)).not.toBeInTheDocument();
-  });
+  }, 8000);
 
   it("com recovery ativo, valida força e confirmação antes de salvar", async () => {
     const user = userEvent.setup();
