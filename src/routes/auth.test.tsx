@@ -6,8 +6,22 @@ import userEvent from "@testing-library/user-event";
 // ---------------- Mocks globais ----------------
 vi.mock("@/assets/senac-logo.png", () => ({ default: "senac-logo.png" }));
 
-const toastMock = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+const { toastMock, supabaseMock } = vi.hoisted(() => ({
+  toastMock: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+  supabaseMock: {
+    auth: {
+      resetPasswordForEmail: vi.fn(),
+      updateUser: vi.fn(),
+      signOut: vi.fn(),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+      getSession: vi.fn(),
+      getUser: vi.fn(),
+    },
+  },
+}));
+
 vi.mock("sonner", () => ({ toast: toastMock }));
+vi.mock("@/integrations/supabase/client", () => ({ supabase: supabaseMock }));
 
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (cfg: unknown) => cfg,
@@ -15,18 +29,6 @@ vi.mock("@tanstack/react-router", () => ({
     <a href={to ?? "#"}>{children}</a>,
   useNavigate: () => vi.fn(),
 }));
-
-const supabaseMock = {
-  auth: {
-    resetPasswordForEmail: vi.fn(),
-    updateUser: vi.fn(),
-    signOut: vi.fn(),
-    onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
-    getSession: vi.fn(),
-    getUser: vi.fn(),
-  },
-};
-vi.mock("@/integrations/supabase/client", () => ({ supabase: supabaseMock }));
 
 // Imports DEPOIS dos mocks
 import { EsqueceuSenhaDialog } from "@/routes/auth";
