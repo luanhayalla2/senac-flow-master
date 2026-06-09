@@ -614,13 +614,3 @@ function ItemRequisito({ ok, texto }: { ok: boolean; texto: string }) {
     </li>
   );
 }
-
-function traduzirErroAuth(msg: string): string {
-  const m = msg.toLowerCase();
-  if (m.includes("invalid login")) return "E-mail ou senha incorretos.";
-  if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
-  if (m.includes("user already registered")) return "Este e-mail já está cadastrado.";
-  if (m.includes("rate limit")) return "Muitas tentativas. Aguarde alguns instantes.";
-  if (m.includes("password")) return "Senha não atende aos requisitos de segurança.";
-  return msg;
-}
