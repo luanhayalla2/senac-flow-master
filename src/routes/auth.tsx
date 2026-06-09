@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,6 @@ import {
   KeyRound,
 } from "lucide-react";
 import senacLogo from "@/assets/senac-logo.png";
-import { emailSchema, matriculaSchema, avaliarSenha, traduzirErroAuth } from "@/lib/auth-utils";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -38,6 +38,53 @@ export const Route = createFileRoute("/auth")({
   }),
   component: AuthPage,
 });
+
+// ---------- Validações ----------
+const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Informe seu e-mail")
+  .email("E-mail inválido")
+  .max(255);
+
+function validarCPF(cpf: string): boolean {
+  const c = cpf.replace(/\D/g, "");
+  if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false;
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(c[i]) * (10 - i);
+  let d1 = (soma * 10) % 11;
+  if (d1 === 10) d1 = 0;
+  if (d1 !== parseInt(c[9])) return false;
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(c[i]) * (11 - i);
+  let d2 = (soma * 10) % 11;
+  if (d2 === 10) d2 = 0;
+  return d2 === parseInt(c[10]);
+}
+
+const matriculaSchema = z
+  .string()
+  .trim()
+  .min(2, "Informe matrícula ou CPF")
+  .max(40)
+  .refine((v) => {
+    const digits = v.replace(/\D/g, "");
+    // Se parece com CPF (11 dígitos), valida CPF; senão aceita como matrícula
+    if (digits.length === 11) return validarCPF(v);
+    return /^[A-Za-z0-9.\-/]+$/.test(v);
+  }, "CPF inválido ou matrícula com caracteres não permitidos");
+
+function avaliarSenha(senha: string) {
+  const checks = {
+    tamanho: senha.length >= 8,
+    maiuscula: /[A-Z]/.test(senha),
+    minuscula: /[a-z]/.test(senha),
+    numero: /\d/.test(senha),
+    especial: /[^A-Za-z0-9]/.test(senha),
+  };
+  const score = Object.values(checks).filter(Boolean).length;
+  return { checks, score };
+}
 
 const STORAGE_KEEP = "senac.keep_signed_in";
 const SUPABASE_STORAGE_KEY = `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID}-auth-token`;
@@ -437,7 +484,7 @@ function FormCadastrar({
 }
 
 // ---------- Esqueceu a senha ----------
-export function EsqueceuSenhaDialog({ emailInicial }: { emailInicial: string }) {
+function EsqueceuSenhaDialog({ emailInicial }: { emailInicial: string }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(emailInicial);
   const [loading, setLoading] = useState(false);
@@ -613,4 +660,14 @@ function ItemRequisito({ ok, texto }: { ok: boolean; texto: string }) {
       <span>{texto}</span>
     </li>
   );
+}
+
+function traduzirErroAuth(msg: string): string {
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login")) return "E-mail ou senha incorretos.";
+  if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
+  if (m.includes("user already registered")) return "Este e-mail já está cadastrado.";
+  if (m.includes("rate limit")) return "Muitas tentativas. Aguarde alguns instantes.";
+  if (m.includes("password")) return "Senha não atende aos requisitos de segurança.";
+  return msg;
 }

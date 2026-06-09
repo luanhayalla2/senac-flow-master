@@ -30,7 +30,7 @@ function avaliar(senha: string) {
   return { checks, score: Object.values(checks).filter(Boolean).length };
 }
 
-export function ResetPasswordPage() {
+function ResetPasswordPage() {
   const navigate = useNavigate();
   const [sessaoRecovery, setSessaoRecovery] = useState<"checando" | "ok" | "invalida">("checando");
   const [senha, setSenha] = useState("");
