@@ -33,14 +33,38 @@ interface Subcat { id: string; nome: string; descricao: string | null; nivel: Ni
 interface Cat { id: string; nome: string; ordem: number }
 interface Unidade { id: string; nome: string; cidade: string }
 
+const SETORES_PADRAO = [
+  "Restaurante Escola (RE)",
+  "NUMOV - Núcleo de Unidade Móvel",
+  "NUEAD - Núcleo de Educação a Distância",
+  "NUTEC - Núcleo de Ensino Tecnológico",
+  "NUIDI - Núcleo de Idiomas",
+  "NUBEL - Núcleo de Beleza",
+  "CEP - Centro de Educação Profissional",
+  "SEESC - Secretaria Escolar",
+  "BAOPO - Banco de Oportunidades",
+  "BIDOC - Biblioteca e Documentação",
+  "Acadêmico",
+  "Administrativo",
+  "TI",
+  "Financeiro",
+  "RH",
+];
+
 function NovoChamado() {
   const navigate = useNavigate();
   const { user, profile } = useSession();
   const [step, setStep] = useState(1);
   const [unidadeId, setUnidadeId] = useState(profile?.unidade_id ?? "");
-  const [setor, setSetor] = useState(profile?.setor ?? "");
+  const setorInicial = profile?.setor
+    ? (SETORES_PADRAO.includes(profile.setor) ? profile.setor : "__outro__")
+    : "";
+  const [setorSelect, setSetorSelect] = useState<string>(setorInicial);
+  const [setorOutro, setSetorOutro] = useState<string>(setorInicial === "__outro__" ? (profile?.setor ?? "") : "");
+  const setor = setorSelect === "__outro__" ? setorOutro.trim() : setorSelect;
   const [categoriaId, setCategoriaId] = useState("");
   const [subId, setSubId] = useState("");
+  const [outroNivel, setOutroNivel] = useState<Nivel | "">("");
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [prioridade, setPrioridade] = useState<"baixa"|"media"|"alta"|"critica">("media");
