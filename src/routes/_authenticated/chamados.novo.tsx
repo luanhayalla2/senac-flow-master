@@ -142,7 +142,21 @@ function NovoChamado() {
                 </div>
                 <div className="space-y-2">
                   <Label>Setor</Label>
-                  <Input value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex.: Acadêmico" />
+                  <Select value={setorSelect} onValueChange={setSetorSelect}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o setor..." /></SelectTrigger>
+                    <SelectContent>
+                      {SETORES_PADRAO.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      <SelectItem value="__outro__">Outro (especificar)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {setorSelect === "__outro__" && (
+                    <Input
+                      value={setorOutro}
+                      onChange={(e) => setSetorOutro(e.target.value)}
+                      placeholder="Informe o nome do setor"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               </div>
             </div>
