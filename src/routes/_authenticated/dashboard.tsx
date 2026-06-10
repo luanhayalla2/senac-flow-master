@@ -17,9 +17,6 @@ const COLORS = ["hsl(var(--primary))","oklch(0.65 0.16 152)","oklch(0.7 0.16 230
 
 function Dashboard() {
   const { roles } = useSession();
-  if (!isTecnico(roles) && !isAdminLike(roles)) {
-    return <div className="max-w-xl mx-auto text-sm text-muted-foreground">Acesso restrito.</div>;
-  }
 
   const { data } = useQuery({
     queryKey: ["dashboard"],
@@ -33,7 +30,12 @@ function Dashboard() {
         unidades: new Map((unidades ?? []).map((u) => [u.id, u.nome])),
       };
     },
+    enabled: isTecnico(roles) || isAdminLike(roles),
   });
+
+  if (!isTecnico(roles) && !isAdminLike(roles)) {
+    return <div className="max-w-xl mx-auto text-sm text-muted-foreground">Acesso restrito.</div>;
+  }
 
   const rows = data?.rows ?? [];
   const ativos = rows.filter((r) => !["fechado"].includes(r.status));
