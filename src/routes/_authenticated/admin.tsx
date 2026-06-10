@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ROLE_LABEL, type AppRole } from "@/lib/senac";
+import { Shield, Headphones, Wrench, Cpu, UserCog, Users, User } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -78,31 +80,68 @@ function UsuariosCard() {
     qc.invalidateQueries({ queryKey: ["admin-users"] });
   };
 
+  const grupos: { key: AppRole; label: string; desc: string; icon: typeof Shield; tone: string }[] = [
+    { key: "admin",       label: "Administradores",          desc: "Acesso total ao sistema",                icon: Shield,   tone: "bg-destructive/10 text-destructive border-destructive/30" },
+    { key: "gestor",      label: "Gestores",                 desc: "Visão institucional e relatórios",       icon: UserCog,  tone: "bg-primary/10 text-primary border-primary/30" },
+    { key: "coordenador", label: "Coordenadores",            desc: "Gestão da unidade",                      icon: Users,    tone: "bg-secondary/15 text-secondary border-secondary/30" },
+    { key: "tecnico_n3",  label: "Técnicos N3 — Especialista", desc: "Atende chamados N1, N2 e N3",          icon: Cpu,      tone: "bg-n3/15 text-n3 border-n3/30" },
+    { key: "tecnico_n2",  label: "Técnicos N2 — Analista",   desc: "Atende chamados N1 e N2",                icon: Wrench,   tone: "bg-n2/15 text-n2 border-n2/30" },
+    { key: "tecnico_n1",  label: "Técnicos N1 — Operacional", desc: "Atende chamados N1",                    icon: Headphones, tone: "bg-n1/15 text-n1 border-n1/30" },
+    { key: "solicitante", label: "Solicitantes",             desc: "Usuários que abrem chamados",            icon: User,     tone: "bg-muted text-muted-foreground border-border" },
+  ];
+
   return (
-    <Card>
-      <CardHeader><CardTitle className="font-display text-base">Usuários do sistema</CardTitle></CardHeader>
-      <CardContent>
-        <div className="divide-y">
-          {data?.map((u) => (
-            <div key={u.id} className="py-3 flex items-center gap-3 flex-wrap">
-              <div className="flex-1 min-w-0">
-                <div className="font-medium">{u.nome_completo}</div>
-                <div className="text-xs text-muted-foreground">{u.email} · {u.setor ?? "—"}</div>
-              </div>
-              <div className="text-xs text-muted-foreground">{u.roles.map((r) => ROLE_LABEL[r]).join(", ")}</div>
-              <Select value={u.roles[0] ?? "solicitante"} onValueChange={(v) => setRole(u.id, v as AppRole)}>
-                <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {(Object.keys(ROLE_LABEL) as AppRole[]).map((r) => (
-                    <SelectItem key={r} value={r}>{ROLE_LABEL[r]}</SelectItem>
+    <div className="space-y-4">
+      {grupos.map((g) => {
+        const Icon = g.icon;
+        const lista = (data ?? []).filter((u) => (u.roles[0] ?? "solicitante") === g.key);
+        return (
+          <Card key={g.key}>
+            <CardHeader className="pb-3">
+              <CardTitle className="font-display text-base flex items-center gap-3">
+                <span className={`h-9 w-9 rounded-lg border grid place-items-center ${g.tone}`}>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div className="flex-1">
+                  <div>{g.label}</div>
+                  <div className="text-xs font-normal text-muted-foreground">{g.desc}</div>
+                </div>
+                <Badge variant="outline" className="ml-auto">{lista.length}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {lista.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Nenhum usuário neste grupo.</p>
+              ) : (
+                <div className="divide-y">
+                  {lista.map((u) => (
+                    <div key={u.id} className="py-3 flex items-center gap-3 flex-wrap">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">{u.nome_completo}</div>
+                        <div className="text-xs text-muted-foreground">{u.email} · {u.setor ?? "—"}</div>
+                      </div>
+                      {(g.key === "tecnico_n1" || g.key === "tecnico_n2" || g.key === "tecnico_n3") && (
+                        <Badge variant="outline" className={g.tone}>
+                          {g.key === "tecnico_n1" ? "N1" : g.key === "tecnico_n2" ? "N2" : "N3"}
+                        </Badge>
+                      )}
+                      <Select value={u.roles[0] ?? "solicitante"} onValueChange={(v) => setRole(u.id, v as AppRole)}>
+                        <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {(Object.keys(ROLE_LABEL) as AppRole[]).map((r) => (
+                            <SelectItem key={r} value={r}>{ROLE_LABEL[r]}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 }
 
