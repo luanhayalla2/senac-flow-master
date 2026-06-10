@@ -64,7 +64,7 @@ function NovoChamado() {
   const setor = setorSelect === "__outro__" ? setorOutro.trim() : setorSelect;
   const [categoriaId, setCategoriaId] = useState("");
   const [subId, setSubId] = useState("");
-  const [outroNivel, setOutroNivel] = useState<Nivel | "">("");
+  
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [prioridade, setPrioridade] = useState<"baixa"|"media"|"alta"|"critica">("media");
