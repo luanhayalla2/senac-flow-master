@@ -165,12 +165,16 @@ function NovoChamado() {
           {step === 2 && (
             <div className="space-y-4">
               <h2 className="font-display font-semibold">2. Categoria do problema</h2>
+              <p className="text-xs text-muted-foreground">
+                Não encontra a categoria? Selecione <b>Outros</b> e descreva o problema nas próximas etapas.
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {categorias?.map((c) => (
                   <button key={c.id}
                     onClick={() => { setCategoriaId(c.id); setSubId(""); }}
                     className={`text-left rounded-lg border p-4 hover:border-primary transition ${categoriaId === c.id ? "border-primary bg-accent/40" : ""}`}>
                     <div className="font-semibold">{c.nome}</div>
+                    {c.nome === "Outros" && <div className="text-[11px] text-muted-foreground mt-1">Para chamados que não se encaixam nas demais categorias</div>}
                   </button>
                 ))}
               </div>
