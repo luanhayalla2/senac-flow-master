@@ -1,0 +1,2 @@
+UPDATE public.unidades SET nome = 'SENAC CohaB' WHERE id = '8703d9f1-d9af-497c-9106-290a5f9db07f';
+INSERT INTO public.unidades (nome, codigo, cidade) VALUES ('SENAC Posto Avançado São Luís (Restaurante Escola)', 'PASL', 'São Luís');
