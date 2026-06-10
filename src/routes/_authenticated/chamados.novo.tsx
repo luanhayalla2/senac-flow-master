@@ -33,14 +33,38 @@ interface Subcat { id: string; nome: string; descricao: string | null; nivel: Ni
 interface Cat { id: string; nome: string; ordem: number }
 interface Unidade { id: string; nome: string; cidade: string }
 
+const SETORES_PADRAO = [
+  "Restaurante Escola (RE)",
+  "NUMOV - Núcleo de Unidade Móvel",
+  "NUEAD - Núcleo de Educação a Distância",
+  "NUTEC - Núcleo de Ensino Tecnológico",
+  "NUIDI - Núcleo de Idiomas",
+  "NUBEL - Núcleo de Beleza",
+  "CEP - Centro de Educação Profissional",
+  "SEESC - Secretaria Escolar",
+  "BAOPO - Banco de Oportunidades",
+  "BIDOC - Biblioteca e Documentação",
+  "Acadêmico",
+  "Administrativo",
+  "TI",
+  "Financeiro",
+  "RH",
+];
+
 function NovoChamado() {
   const navigate = useNavigate();
   const { user, profile } = useSession();
   const [step, setStep] = useState(1);
   const [unidadeId, setUnidadeId] = useState(profile?.unidade_id ?? "");
-  const [setor, setSetor] = useState(profile?.setor ?? "");
+  const setorInicial = profile?.setor
+    ? (SETORES_PADRAO.includes(profile.setor) ? profile.setor : "__outro__")
+    : "";
+  const [setorSelect, setSetorSelect] = useState<string>(setorInicial);
+  const [setorOutro, setSetorOutro] = useState<string>(setorInicial === "__outro__" ? (profile?.setor ?? "") : "");
+  const setor = setorSelect === "__outro__" ? setorOutro.trim() : setorSelect;
   const [categoriaId, setCategoriaId] = useState("");
   const [subId, setSubId] = useState("");
+  
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [prioridade, setPrioridade] = useState<"baixa"|"media"|"alta"|"critica">("media");
@@ -118,7 +142,21 @@ function NovoChamado() {
                 </div>
                 <div className="space-y-2">
                   <Label>Setor</Label>
-                  <Input value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex.: Acadêmico" />
+                  <Select value={setorSelect} onValueChange={setSetorSelect}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o setor..." /></SelectTrigger>
+                    <SelectContent>
+                      {SETORES_PADRAO.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      <SelectItem value="__outro__">Outro (especificar)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {setorSelect === "__outro__" && (
+                    <Input
+                      value={setorOutro}
+                      onChange={(e) => setSetorOutro(e.target.value)}
+                      placeholder="Informe o nome do setor"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -127,12 +165,16 @@ function NovoChamado() {
           {step === 2 && (
             <div className="space-y-4">
               <h2 className="font-display font-semibold">2. Categoria do problema</h2>
+              <p className="text-xs text-muted-foreground">
+                Não encontra a categoria? Selecione <b>Outros</b> e descreva o problema nas próximas etapas.
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {categorias?.map((c) => (
                   <button key={c.id}
                     onClick={() => { setCategoriaId(c.id); setSubId(""); }}
                     className={`text-left rounded-lg border p-4 hover:border-primary transition ${categoriaId === c.id ? "border-primary bg-accent/40" : ""}`}>
                     <div className="font-semibold">{c.nome}</div>
+                    {c.nome === "Outros" && <div className="text-[11px] text-muted-foreground mt-1">Para chamados que não se encaixam nas demais categorias</div>}
                   </button>
                 ))}
               </div>
