@@ -36,6 +36,7 @@ function AdminPage() {
           <TabsTrigger value="usuarios">Usuários e papéis</TabsTrigger>
           <TabsTrigger value="categorias">Catálogo de problemas</TabsTrigger>
           <TabsTrigger value="regras">Regras de negócio</TabsTrigger>
+          <TabsTrigger value="auditoria"><History className="h-3.5 w-3.5 mr-1.5" />Auditoria</TabsTrigger>
         </TabsList>
 
         <TabsContent value="usuarios" className="mt-4">
