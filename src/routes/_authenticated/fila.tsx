@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
+import { useSession, isTecnico, isAdminLike, hasAnyRole } from "@/hooks/use-session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NivelBadge, StatusBadge } from "@/components/chamado-badges";
 import { Progress } from "@/components/ui/progress";
