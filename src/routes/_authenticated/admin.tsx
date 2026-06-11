@@ -50,6 +50,10 @@ function AdminPage() {
         <TabsContent value="regras" className="mt-4">
           <RegrasCard />
         </TabsContent>
+
+        <TabsContent value="auditoria" className="mt-4">
+          <AuditoriaCard />
+        </TabsContent>
       </Tabs>
     </div>
   );
