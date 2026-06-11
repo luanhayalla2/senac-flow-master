@@ -209,14 +209,41 @@ function NovoChamado() {
             <div className="space-y-4">
               <h2 className="font-display font-semibold">4. Detalhes e confirmação</h2>
               {subSel && (
-                <div className="rounded-lg border bg-accent/30 p-4 flex items-start gap-3">
-                  <Zap className="h-5 w-5 text-primary mt-0.5" />
-                  <div className="text-sm">
-                    <div className="font-semibold">Classificação automática: <NivelBadge nivel={subSel.nivel} /></div>
-                    <div className="text-muted-foreground mt-0.5">
-                      Resposta em até <b>{formatSla(subSel.sla_resposta_min)}</b> · Solução em até <b>{formatSla(subSel.sla_solucao_min)}</b>
+                <div className="rounded-lg border bg-accent/30 p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Zap className="h-5 w-5 text-primary mt-0.5" />
+                    <div className="text-sm">
+                      <div className="font-semibold">Classificação automática: <NivelBadge nivel={subSel.nivel} /></div>
+                      <div className="text-muted-foreground mt-0.5">
+                        Resposta em até <b>{formatSla(subSel.sla_resposta_min)}</b> · Solução em até <b>{formatSla(subSel.sla_solucao_min)}</b>
+                      </div>
                     </div>
                   </div>
+                  {isOutros && (
+                    <div className="pt-2 border-t">
+                      <div className="text-xs text-muted-foreground mb-2">Ajustar nível de atendimento:</div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(["n1","n2","n3"] as const).map((n) => {
+                          const opt = subcats?.find((s) => s.nivel === n);
+                          if (!opt) return null;
+                          const active = subId === opt.id;
+                          return (
+                            <button
+                              key={n}
+                              type="button"
+                              onClick={() => setSubId(opt.id)}
+                              className={`rounded-lg border p-3 text-center transition hover:border-primary ${active ? "border-primary bg-primary/10" : ""}`}
+                            >
+                              <div className="flex justify-center mb-1"><NivelBadge nivel={n} /></div>
+                              <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                                Resp. {formatSla(opt.sla_resposta_min)} · Sol. {formatSla(opt.sla_solucao_min)}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               <div className="space-y-2">
