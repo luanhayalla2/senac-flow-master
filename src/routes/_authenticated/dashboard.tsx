@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, isAdminLike } from "@/hooks/use-session";
+import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, CartesianGrid } from "recharts";
-import { Inbox, Activity, AlertTriangle, CheckCircle2, Users } from "lucide-react";
+import { Inbox, Activity, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { slaProgress, type ChamadoStatus, type Nivel } from "@/lib/senac";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -17,31 +17,30 @@ const COLORS = ["hsl(var(--primary))","oklch(0.65 0.16 152)","oklch(0.7 0.16 230
 
 function Dashboard() {
   const { roles } = useSession();
-  const admin = isAdminLike(roles);
 
   const { data } = useQuery({
     queryKey: ["dashboard"],
-    queryFn: async (): Promise<{ rows: Row[]; unidades: Map<string,string>; usuariosAtivos: number }> => {
-      const [{ data: rows }, { data: unidades }, { count: usuariosAtivos }] = await Promise.all([
+    queryFn: async (): Promise<{ rows: Row[]; unidades: Map<string,string> }> => {
+      const [{ data: rows }, { data: unidades }] = await Promise.all([
         supabase.from("chamados").select("id, status, nivel, aberto_em, sla_solucao_min, resolvido_em, unidade_id").limit(1000),
         supabase.from("unidades").select("id, nome"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
       ]);
       return {
         rows: (rows ?? []) as Row[],
         unidades: new Map((unidades ?? []).map((u) => [u.id, u.nome])),
-        usuariosAtivos: usuariosAtivos ?? 0,
       };
     },
+    enabled: isTecnico(roles) || isAdminLike(roles),
   });
+
+  if (!isTecnico(roles) && !isAdminLike(roles)) {
+    return <div className="max-w-xl mx-auto text-sm text-muted-foreground">Acesso restrito.</div>;
+  }
 
   const rows = data?.rows ?? [];
   const ativos = rows.filter((r) => !["fechado"].includes(r.status));
   const vencidos = ativos.filter((r) => slaProgress(r.aberto_em, r.sla_solucao_min, r.resolvido_em).vencido).length;
   const resolvidos = rows.filter((r) => r.status === "resolvido" || r.status === "fechado").length;
-  const n1 = rows.filter((r) => r.nivel === "n1").length;
-  const n2 = rows.filter((r) => r.nivel === "n2").length;
-  const n3 = rows.filter((r) => r.nivel === "n3").length;
 
   const porNivel = (["n1","n2","n3"] as Nivel[]).map((n) => ({
     nivel: n.toUpperCase(),
@@ -60,24 +59,16 @@ function Dashboard() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="font-display text-2xl font-bold">Dashboard {admin ? "Admin" : "Técnico"}</h1>
+        <h1 className="font-display text-2xl font-bold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Indicadores em tempo real do Service Desk.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <KPI icon={Inbox} label="Chamados totais" value={rows.length} tone="secondary" />
+        <KPI icon={Inbox} label="Total" value={rows.length} tone="secondary" />
         <KPI icon={Activity} label="Ativos" value={ativos.length} tone="primary" />
-        <KPI icon={AlertTriangle} label="SLA estourado" value={vencidos} tone="destructive" />
+        <KPI icon={AlertTriangle} label="SLA vencido" value={vencidos} tone="destructive" />
         <KPI icon={CheckCircle2} label="Resolvidos" value={resolvidos} tone="success" />
       </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <KPI icon={Activity} label="N1" value={n1} tone="primary" />
-        <KPI icon={Activity} label="N2" value={n2} tone="secondary" />
-        <KPI icon={Activity} label="N3" value={n3} tone="success" />
-        {admin && <KPI icon={Users} label="Usuários ativos" value={data?.usuariosAtivos ?? 0} tone="secondary" />}
-      </div>
-
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
