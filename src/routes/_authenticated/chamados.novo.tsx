@@ -95,6 +95,8 @@ function NovoChamado() {
     },
   });
   const subSel = useMemo(() => subcats?.find((s) => s.id === subId), [subcats, subId]);
+  const categoriaSel = useMemo(() => categorias?.find((c) => c.id === categoriaId), [categorias, categoriaId]);
+  const isOutros = categoriaSel?.nome === "Outros";
 
   const submit = async () => {
     const parsed = schema.safeParse({ unidade_id: unidadeId, setor, subcategoria_id: subId, titulo, descricao, prioridade });
