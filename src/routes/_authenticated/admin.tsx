@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ROLE_LABEL, type AppRole } from "@/lib/senac";
-import { Shield, Headphones, Wrench, Cpu, UserCog, Users, User } from "lucide-react";
+import { Shield, Headphones, Wrench, Cpu, UserCog, Users, User, History, ArrowRight } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
