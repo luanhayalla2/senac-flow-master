@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, CartesianGrid } from "recharts";
-import { Inbox, Activity, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Inbox, Activity, AlertTriangle, CheckCircle2, Users } from "lucide-react";
 import { slaProgress, type ChamadoStatus, type Nivel } from "@/lib/senac";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
