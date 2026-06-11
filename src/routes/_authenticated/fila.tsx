@@ -41,16 +41,26 @@ function FilaPage() {
     return <div className="max-w-xl mx-auto text-sm text-muted-foreground">Acesso restrito a técnicos e gestores.</div>;
   }
 
+  // Admin/gestor/coord vê todos os níveis. Técnicos veem APENAS seu próprio nível.
+  const niveisVisiveis: Nivel[] = admin
+    ? (["n1","n2","n3"] as Nivel[])
+    : hasAnyRole(roles, "tecnico_n3") ? ["n3"]
+    : hasAnyRole(roles, "tecnico_n2") ? ["n2"]
+    : hasAnyRole(roles, "tecnico_n1") ? ["n1"]
+    : [];
+
   const byNivel = (n: Nivel) => data?.filter((c) => c.nivel === n) ?? [];
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div>
         <h1 className="font-display text-2xl font-bold">Fila de atendimento</h1>
-        <p className="text-sm text-muted-foreground">Chamados ativos visíveis para o seu nível.</p>
+        <p className="text-sm text-muted-foreground">
+          {admin ? "Visão completa de todos os níveis." : `Chamados visíveis ao seu nível (${niveisVisiveis.map(n=>n.toUpperCase()).join(", ") || "—"}).`}
+        </p>
       </div>
-      <div className="grid lg:grid-cols-3 gap-4">
-        {(["n1","n2","n3"] as Nivel[]).map((n) => (
+      <div className={`grid gap-4 ${niveisVisiveis.length === 1 ? "lg:grid-cols-1" : niveisVisiveis.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
+        {niveisVisiveis.map((n) => (
           <Card key={n}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="font-display flex items-center gap-2"><NivelBadge nivel={n} /> Fila {n.toUpperCase()}</CardTitle>
