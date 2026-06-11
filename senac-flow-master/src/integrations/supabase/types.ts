@@ -14,39 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_audit_log: {
-        Row: {
-          acao: string
-          alvo_id: string | null
-          ator_id: string | null
-          criado_em: string
-          de: string | null
-          detalhes: Json | null
-          id: string
-          para: string | null
-        }
-        Insert: {
-          acao: string
-          alvo_id?: string | null
-          ator_id?: string | null
-          criado_em?: string
-          de?: string | null
-          detalhes?: Json | null
-          id?: string
-          para?: string | null
-        }
-        Update: {
-          acao?: string
-          alvo_id?: string | null
-          ator_id?: string | null
-          criado_em?: string
-          de?: string | null
-          detalhes?: Json | null
-          id?: string
-          para?: string | null
-        }
-        Relationships: []
-      }
       alertas_sla: {
         Row: {
           chamado_id: string

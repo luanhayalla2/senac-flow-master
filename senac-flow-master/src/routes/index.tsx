@@ -1,9 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ArrowRight, ShieldCheck, Timer, Workflow, Zap, Layers, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import senacLogo from "@/assets/senac-logo.png";
+import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "SENAC Service Desk Enterprise" },
@@ -14,6 +17,16 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const navigate = useNavigate();
+  const { session, roles, loading } = useSession();
+
+  useEffect(() => {
+    if (loading || !session) return;
+    if (isAdminLike(roles)) navigate({ to: "/dashboard", replace: true });
+    else if (isTecnico(roles)) navigate({ to: "/fila", replace: true });
+    else navigate({ to: "/portal", replace: true });
+  }, [loading, session, roles, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-background/80 backdrop-blur sticky top-0 z-10">

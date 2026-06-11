@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
+import { useSession } from "@/hooks/use-session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NivelBadge, StatusBadge } from "@/components/chamado-badges";
 import { Progress } from "@/components/ui/progress";
@@ -19,8 +19,6 @@ interface Row {
 
 function FilaPage() {
   const { roles } = useSession();
-  const tecnico = isTecnico(roles);
-  const admin = isAdminLike(roles);
 
   const { data } = useQuery({
     queryKey: ["fila"],
@@ -33,13 +31,11 @@ function FilaPage() {
         .limit(200);
       return (data ?? []) as Row[];
     },
-    enabled: tecnico || admin,
     refetchInterval: 30_000,
   });
 
-  if (!tecnico && !admin) {
-    return <div className="max-w-xl mx-auto text-sm text-muted-foreground">Acesso restrito a técnicos e gestores.</div>;
-  }
+  // Todos veem todos os níveis
+  const niveisVisiveis: Nivel[] = ["n1", "n2", "n3"];
 
   const byNivel = (n: Nivel) => data?.filter((c) => c.nivel === n) ?? [];
 
@@ -47,10 +43,12 @@ function FilaPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       <div>
         <h1 className="font-display text-2xl font-bold">Fila de atendimento</h1>
-        <p className="text-sm text-muted-foreground">Chamados ativos visíveis para o seu nível.</p>
+        <p className="text-sm text-muted-foreground">
+          Visão completa de todos os níveis.
+        </p>
       </div>
-      <div className="grid lg:grid-cols-3 gap-4">
-        {(["n1","n2","n3"] as Nivel[]).map((n) => (
+      <div className={`grid gap-4 ${niveisVisiveis.length === 1 ? "lg:grid-cols-1" : niveisVisiveis.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
+        {niveisVisiveis.map((n) => (
           <Card key={n}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="font-display flex items-center gap-2"><NivelBadge nivel={n} /> Fila {n.toUpperCase()}</CardTitle>

@@ -2,15 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, isAdminLike } from "@/hooks/use-session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ROLE_LABEL, type AppRole } from "@/lib/senac";
-import { Shield, Headphones, Wrench, Cpu, UserCog, Users, User, History, ArrowRight } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Shield, Headphones, Wrench, Cpu, UserCog, Users, User } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -19,10 +17,6 @@ export const Route = createFileRoute("/_authenticated/admin")({
 interface UserRow { id: string; nome_completo: string; email: string; setor: string | null }
 
 function AdminPage() {
-  const { roles } = useSession();
-  if (!isAdminLike(roles)) {
-    return <div className="max-w-xl mx-auto text-sm text-muted-foreground">Acesso restrito a administradores.</div>;
-  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -36,7 +30,6 @@ function AdminPage() {
           <TabsTrigger value="usuarios">Usuários e papéis</TabsTrigger>
           <TabsTrigger value="categorias">Catálogo de problemas</TabsTrigger>
           <TabsTrigger value="regras">Regras de negócio</TabsTrigger>
-          <TabsTrigger value="auditoria"><History className="h-3.5 w-3.5 mr-1.5" />Auditoria</TabsTrigger>
         </TabsList>
 
         <TabsContent value="usuarios" className="mt-4">
@@ -49,10 +42,6 @@ function AdminPage() {
 
         <TabsContent value="regras" className="mt-4">
           <RegrasCard />
-        </TabsContent>
-
-        <TabsContent value="auditoria" className="mt-4">
-          <AuditoriaCard />
         </TabsContent>
       </Tabs>
     </div>
@@ -202,110 +191,6 @@ function RegrasCard() {
         <ol className="list-decimal pl-5 space-y-1.5 text-sm">
           {regras.map((r) => <li key={r}>{r}</li>)}
         </ol>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface AuditRow {
-  id: string;
-  ator_id: string | null;
-  alvo_id: string | null;
-  acao: string;
-  de: string | null;
-  para: string | null;
-  detalhes: Record<string, unknown> | null;
-  criado_em: string;
-}
-
-function AuditoriaCard() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-audit"],
-    queryFn: async () => {
-      const { data: logs, error } = await supabase
-        .from("admin_audit_log")
-        .select("*")
-        .order("criado_em", { ascending: false })
-        .limit(200);
-      if (error) throw error;
-      const ids = Array.from(
-        new Set(
-          (logs ?? []).flatMap((l) => [l.ator_id, l.alvo_id]).filter(Boolean) as string[],
-        ),
-      );
-      const { data: profs } = ids.length
-        ? await supabase.from("profiles").select("id, nome_completo, email").in("id", ids)
-        : { data: [] as { id: string; nome_completo: string; email: string }[] };
-      const map = new Map((profs ?? []).map((p) => [p.id, p]));
-      return (logs as AuditRow[]).map((l) => ({
-        ...l,
-        atorNome: l.ator_id ? map.get(l.ator_id)?.nome_completo ?? "—" : "Sistema",
-        alvoNome: l.alvo_id ? map.get(l.alvo_id)?.nome_completo ?? "—" : "—",
-      }));
-    },
-  });
-
-  const acaoLabel = (a: string) =>
-    ({
-      role_atribuida: "Papel atribuído",
-      role_removida: "Papel removido",
-    } as Record<string, string>)[a] ?? a;
-
-  const roleLabel = (r: string | null) =>
-    r ? ROLE_LABEL[r as AppRole] ?? r : "—";
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-display text-base flex items-center gap-2">
-          <History className="h-4 w-4 text-primary" />
-          Histórico de alterações administrativas
-        </CardTitle>
-        <p className="text-xs text-muted-foreground">
-          Últimas 200 ações realizadas sobre papéis e categorias de usuários.
-        </p>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Carregando…</p>
-        ) : !data?.length ? (
-          <p className="text-sm text-muted-foreground">Nenhuma alteração registrada ainda.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Quando</TableHead>
-                <TableHead>Quem alterou</TableHead>
-                <TableHead>Usuário afetado</TableHead>
-                <TableHead>Ação</TableHead>
-                <TableHead>Mudança</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell className="text-xs whitespace-nowrap">
-                    {new Date(l.criado_em).toLocaleString("pt-BR")}
-                  </TableCell>
-                  <TableCell className="text-sm">{l.atorNome}</TableCell>
-                  <TableCell className="text-sm">{l.alvoNome}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {acaoLabel(l.acao)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {l.de && <span className="text-muted-foreground line-through">{roleLabel(l.de)}</span>}
-                      {l.de && l.para && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
-                      {l.para && <span className="font-medium">{roleLabel(l.para)}</span>}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
       </CardContent>
     </Card>
   );

@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, isTecnico, isAdminLike } from "@/hooks/use-session";
+import { useSession } from "@/hooks/use-session";
 import { ROLE_LABEL } from "@/lib/senac";
 
 export function AppSidebar() {
@@ -33,8 +33,6 @@ export function AppSidebar() {
   const router = useRouter();
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { profile, roles } = useSession();
-  const tecnico = isTecnico(roles);
-  const admin = isAdminLike(roles);
 
   const isActive = (p: string) => path === p || path.startsWith(p + "/");
 
@@ -44,11 +42,11 @@ export function AppSidebar() {
     { title: "Meus chamados", url: "/chamados", icon: ListChecks, show: true },
   ];
   const itemsTrabalho = [
-    { title: "Fila de atendimento", url: "/fila", icon: Inbox, show: tecnico || admin },
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, show: admin || tecnico },
+    { title: "Fila de atendimento", url: "/fila", icon: Inbox, show: true },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, show: true },
   ];
   const itemsAdmin = [
-    { title: "Administração", url: "/admin", icon: ShieldCheck, show: admin },
+    { title: "Administração", url: "/admin", icon: ShieldCheck, show: true },
   ];
 
   const initials = (profile?.nome_completo ?? "?")
@@ -87,45 +85,41 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {(tecnico || admin) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Atendimento</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {itemsTrabalho.filter((i) => i.show).map((item) => (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        <SidebarGroup>
+          <SidebarGroupLabel>Atendimento</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {itemsTrabalho.filter((i) => i.show).map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-        {admin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Gestão</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {itemsAdmin.filter((i) => i.show).map((item) => (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        <SidebarGroup>
+          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {itemsAdmin.filter((i) => i.show).map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
