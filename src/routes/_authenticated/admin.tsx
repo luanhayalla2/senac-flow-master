@@ -206,3 +206,107 @@ function RegrasCard() {
     </Card>
   );
 }
+
+interface AuditRow {
+  id: string;
+  ator_id: string | null;
+  alvo_id: string | null;
+  acao: string;
+  de: string | null;
+  para: string | null;
+  detalhes: Record<string, unknown> | null;
+  criado_em: string;
+}
+
+function AuditoriaCard() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-audit"],
+    queryFn: async () => {
+      const { data: logs, error } = await supabase
+        .from("admin_audit_log")
+        .select("*")
+        .order("criado_em", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      const ids = Array.from(
+        new Set(
+          (logs ?? []).flatMap((l) => [l.ator_id, l.alvo_id]).filter(Boolean) as string[],
+        ),
+      );
+      const { data: profs } = ids.length
+        ? await supabase.from("profiles").select("id, nome_completo, email").in("id", ids)
+        : { data: [] as { id: string; nome_completo: string; email: string }[] };
+      const map = new Map((profs ?? []).map((p) => [p.id, p]));
+      return (logs as AuditRow[]).map((l) => ({
+        ...l,
+        atorNome: l.ator_id ? map.get(l.ator_id)?.nome_completo ?? "—" : "Sistema",
+        alvoNome: l.alvo_id ? map.get(l.alvo_id)?.nome_completo ?? "—" : "—",
+      }));
+    },
+  });
+
+  const acaoLabel = (a: string) =>
+    ({
+      role_atribuida: "Papel atribuído",
+      role_removida: "Papel removido",
+    } as Record<string, string>)[a] ?? a;
+
+  const roleLabel = (r: string | null) =>
+    r ? ROLE_LABEL[r as AppRole] ?? r : "—";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-display text-base flex items-center gap-2">
+          <History className="h-4 w-4 text-primary" />
+          Histórico de alterações administrativas
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Últimas 200 ações realizadas sobre papéis e categorias de usuários.
+        </p>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Carregando…</p>
+        ) : !data?.length ? (
+          <p className="text-sm text-muted-foreground">Nenhuma alteração registrada ainda.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Quando</TableHead>
+                <TableHead>Quem alterou</TableHead>
+                <TableHead>Usuário afetado</TableHead>
+                <TableHead>Ação</TableHead>
+                <TableHead>Mudança</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell className="text-xs whitespace-nowrap">
+                    {new Date(l.criado_em).toLocaleString("pt-BR")}
+                  </TableCell>
+                  <TableCell className="text-sm">{l.atorNome}</TableCell>
+                  <TableCell className="text-sm">{l.alvoNome}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs">
+                      {acaoLabel(l.acao)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {l.de && <span className="text-muted-foreground line-through">{roleLabel(l.de)}</span>}
+                      {l.de && l.para && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
+                      {l.para && <span className="font-medium">{roleLabel(l.para)}</span>}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
