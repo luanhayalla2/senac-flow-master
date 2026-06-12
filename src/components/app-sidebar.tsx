@@ -8,6 +8,8 @@ import {
   ShieldCheck,
   LogOut,
   Building2,
+  UserCircle,
+  KeyRound,
 } from "lucide-react";
 import {
   Sidebar,
@@ -49,6 +51,10 @@ export function AppSidebar() {
   ];
   const itemsAdmin = [
     { title: "Administração", url: "/admin", icon: ShieldCheck, show: admin },
+  ];
+  const itemsConta = [
+    { title: "Meu Perfil", url: "/perfil", icon: UserCircle, show: true },
+    { title: "Alterar Senha", url: "/alterar-senha", icon: KeyRound, show: true },
   ];
 
   const initials = (profile?.nome_completo ?? "?")
@@ -126,6 +132,24 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Conta</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {itemsConta.filter((i) => i.show).map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
