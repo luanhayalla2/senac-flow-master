@@ -12,6 +12,7 @@ import {
   KeyRound,
   Gauge,
   BarChart3,
+  FileSearch,
 } from "lucide-react";
 import {
   Sidebar,
@@ -69,7 +70,8 @@ export function AppSidebar() {
         { title: "Chamados do Meu Nível", url: "/fila", icon: Inbox },
         { title: "Meus Chamados", url: "/chamados", icon: ListChecks },
         { title: "Novo Chamado", url: "/chamados/novo", icon: PlusCircle },
-        { title: "SLA", url: "/dashboard", icon: Gauge },
+        { title: "SLA", url: "/sla", icon: Gauge },
+        { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
       ],
     });
   }
@@ -83,7 +85,9 @@ export function AppSidebar() {
         { title: "Fila de Atendimento", url: "/fila", icon: Inbox },
         { title: "Chamados", url: "/chamados", icon: ListChecks },
         { title: "Novo Chamado", url: "/chamados/novo", icon: PlusCircle },
-        { title: "Relatórios", url: "/dashboard", icon: BarChart3 },
+        { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
+        { title: "SLA", url: "/sla", icon: Gauge },
+        { title: "Auditoria", url: "/auditoria", icon: FileSearch },
       ],
     });
   }
@@ -92,7 +96,7 @@ export function AppSidebar() {
     label: "Conta",
     items: [
       { title: "Meu Perfil", url: "/perfil", icon: UserCircle2 },
-      { title: "Alterar Senha", url: "/senha", icon: KeyRound },
+      { title: "Alterar Senha", url: "/alterar-senha", icon: KeyRound },
     ],
   });
 
