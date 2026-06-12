@@ -425,6 +425,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["nivel_atendimento"][]
       }
+      pode_ver_chamado: { Args: { _chamado_id: string }; Returns: boolean }
       verificar_sla: { Args: never; Returns: number }
     }
     Enums: {
