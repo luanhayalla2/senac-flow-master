@@ -13,7 +13,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSenhaRouteImport } from './routes/_authenticated/senha'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedFilaRouteImport } from './routes/_authenticated/fila'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -40,9 +42,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSenhaRoute = AuthenticatedSenhaRouteImport.update({
+  id: '/senha',
+  path: '/senha',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPortalRoute = AuthenticatedPortalRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFilaRoute = AuthenticatedFilaRouteImport.update({
@@ -85,7 +97,9 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fila': typeof AuthenticatedFilaRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/portal': typeof AuthenticatedPortalRoute
+  '/senha': typeof AuthenticatedSenhaRoute
   '/chamados/$id': typeof AuthenticatedChamadosIdRoute
   '/chamados/novo': typeof AuthenticatedChamadosNovoRoute
   '/chamados/': typeof AuthenticatedChamadosIndexRoute
@@ -97,7 +111,9 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fila': typeof AuthenticatedFilaRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/portal': typeof AuthenticatedPortalRoute
+  '/senha': typeof AuthenticatedSenhaRoute
   '/chamados/$id': typeof AuthenticatedChamadosIdRoute
   '/chamados/novo': typeof AuthenticatedChamadosNovoRoute
   '/chamados': typeof AuthenticatedChamadosIndexRoute
@@ -111,7 +127,9 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/fila': typeof AuthenticatedFilaRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRoute
+  '/_authenticated/senha': typeof AuthenticatedSenhaRoute
   '/_authenticated/chamados/$id': typeof AuthenticatedChamadosIdRoute
   '/_authenticated/chamados/novo': typeof AuthenticatedChamadosNovoRoute
   '/_authenticated/chamados/': typeof AuthenticatedChamadosIndexRoute
@@ -125,7 +143,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/fila'
+    | '/perfil'
     | '/portal'
+    | '/senha'
     | '/chamados/$id'
     | '/chamados/novo'
     | '/chamados/'
@@ -137,7 +157,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/fila'
+    | '/perfil'
     | '/portal'
+    | '/senha'
     | '/chamados/$id'
     | '/chamados/novo'
     | '/chamados'
@@ -150,7 +172,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/fila'
+    | '/_authenticated/perfil'
     | '/_authenticated/portal'
+    | '/_authenticated/senha'
     | '/_authenticated/chamados/$id'
     | '/_authenticated/chamados/novo'
     | '/_authenticated/chamados/'
@@ -193,11 +217,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/senha': {
+      id: '/_authenticated/senha'
+      path: '/senha'
+      fullPath: '/senha'
+      preLoaderRoute: typeof AuthenticatedSenhaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/portal': {
       id: '/_authenticated/portal'
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof AuthenticatedPortalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fila': {
@@ -249,7 +287,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFilaRoute: typeof AuthenticatedFilaRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPortalRoute: typeof AuthenticatedPortalRoute
+  AuthenticatedSenhaRoute: typeof AuthenticatedSenhaRoute
   AuthenticatedChamadosIdRoute: typeof AuthenticatedChamadosIdRoute
   AuthenticatedChamadosNovoRoute: typeof AuthenticatedChamadosNovoRoute
   AuthenticatedChamadosIndexRoute: typeof AuthenticatedChamadosIndexRoute
@@ -259,7 +299,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFilaRoute: AuthenticatedFilaRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPortalRoute: AuthenticatedPortalRoute,
+  AuthenticatedSenhaRoute: AuthenticatedSenhaRoute,
   AuthenticatedChamadosIdRoute: AuthenticatedChamadosIdRoute,
   AuthenticatedChamadosNovoRoute: AuthenticatedChamadosNovoRoute,
   AuthenticatedChamadosIndexRoute: AuthenticatedChamadosIndexRoute,

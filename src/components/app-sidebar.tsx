@@ -8,6 +8,10 @@ import {
   ShieldCheck,
   LogOut,
   Building2,
+  UserCircle2,
+  KeyRound,
+  Gauge,
+  BarChart3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,18 +42,59 @@ export function AppSidebar() {
 
   const isActive = (p: string) => path === p || path.startsWith(p + "/");
 
-  const itemsPrincipal = [
-    { title: "Portal", url: "/portal", icon: Inbox, show: true },
-    { title: "Novo chamado", url: "/chamados/novo", icon: PlusCircle, show: true },
-    { title: "Meus chamados", url: "/chamados", icon: ListChecks, show: true },
-  ];
-  const itemsTrabalho = [
-    { title: "Fila de atendimento", url: "/fila", icon: Inbox, show: tecnico || admin },
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, show: admin || tecnico },
-  ];
-  const itemsAdmin = [
-    { title: "Administração", url: "/admin", icon: ShieldCheck, show: admin },
-  ];
+  const perfilDominante: "admin" | "tecnico" | "solicitante" = admin
+    ? "admin"
+    : tecnico
+    ? "tecnico"
+    : "solicitante";
+
+  const grupos: { label: string; items: { title: string; url: string; icon: React.ComponentType<{ className?: string }> }[] }[] = [];
+
+  if (perfilDominante === "solicitante") {
+    grupos.push({
+      label: "Solicitante",
+      items: [
+        { title: "Dashboard", url: "/portal", icon: LayoutDashboard },
+        { title: "Meus Chamados", url: "/chamados", icon: ListChecks },
+        { title: "Novo Chamado", url: "/chamados/novo", icon: PlusCircle },
+      ],
+    });
+  }
+
+  if (perfilDominante === "tecnico") {
+    grupos.push({
+      label: "Atendimento",
+      items: [
+        { title: "Dashboard Técnico", url: "/dashboard", icon: LayoutDashboard },
+        { title: "Chamados do Meu Nível", url: "/fila", icon: Inbox },
+        { title: "Meus Chamados", url: "/chamados", icon: ListChecks },
+        { title: "Novo Chamado", url: "/chamados/novo", icon: PlusCircle },
+        { title: "SLA", url: "/dashboard", icon: Gauge },
+      ],
+    });
+  }
+
+  if (perfilDominante === "admin") {
+    grupos.push({
+      label: "Gestão",
+      items: [
+        { title: "Dashboard Admin", url: "/dashboard", icon: LayoutDashboard },
+        { title: "Administração", url: "/admin", icon: ShieldCheck },
+        { title: "Fila de Atendimento", url: "/fila", icon: Inbox },
+        { title: "Chamados", url: "/chamados", icon: ListChecks },
+        { title: "Novo Chamado", url: "/chamados/novo", icon: PlusCircle },
+        { title: "Relatórios", url: "/dashboard", icon: BarChart3 },
+      ],
+    });
+  }
+
+  grupos.push({
+    label: "Conta",
+    items: [
+      { title: "Meu Perfil", url: "/perfil", icon: UserCircle2 },
+      { title: "Alterar Senha", url: "/senha", icon: KeyRound },
+    ],
+  });
 
   const initials = (profile?.nome_completo ?? "?")
     .split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
@@ -69,31 +114,13 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Solicitante</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {itemsPrincipal.filter((i) => i.show).map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {(tecnico || admin) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Atendimento</SidebarGroupLabel>
+        {grupos.map((g) => (
+          <SidebarGroup key={g.label}>
+            <SidebarGroupLabel>{g.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {itemsTrabalho.filter((i) => i.show).map((item) => (
-                  <SidebarMenuItem key={item.url}>
+                {g.items.map((item) => (
+                  <SidebarMenuItem key={item.title + item.url}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
                       <Link to={item.url} className="flex items-center gap-2">
                         <item.icon className="h-4 w-4" />
@@ -105,27 +132,7 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
-
-        {admin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Gestão</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {itemsAdmin.filter((i) => i.show).map((item) => (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

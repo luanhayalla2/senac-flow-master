@@ -1,70 +1,46 @@
+# Plano de implementação — Portal Help Desk SENAC-MA
 
-# Plano: Ciclo Completo + Auditoria Exportável + Alertas de SLA
+Vou entregar em **4 etapas curtas**, cada uma testável de ponta a ponta. Você aprova essa visão geral e eu começo pela Etapa 1.
 
-Vou implementar três frentes integradas no SmartDesk, todas apoiadas pela auditoria já existente (`chamado_historico`).
+## Etapa 1 — Perfil, senha e menus por perfil
+- **Nova rota `/perfil`** (Meu Perfil): editar nome completo, matrícula, setor e unidade. Email é só leitura.
+- **Nova rota `/senha`** (Alterar Senha): pede senha atual, valida força (8+ com maiúscula/minúscula/número/especial) e usa `supabase.auth.updateUser`.
+- **Sidebar reorganizada por perfil** seguindo o spec:
+  - **Solicitante:** Dashboard (= Portal), Meus Chamados, Novo Chamado, Meu Perfil, Alterar Senha, Sair.
+  - **Técnico (N1/N2/N3):** Dashboard Técnico, Chamados do Meu Nível (= Fila já filtrada pelo nível via `niveis_visiveis`), SLA (nova aba leve em Dashboard), Relatórios, Perfil, Sair.
+  - **Admin:** Dashboard Admin, Usuários, Unidades, Setores, Categorias, SLA, Chamados, Relatórios, Auditoria, Segurança, Sair.
 
----
+## Etapa 2 — Admin: CRUDs e abas
+Tudo dentro de `/admin` como abas novas (mantém a aba Usuários e papéis já existente):
+- **Unidades** — CRUD da tabela `unidades`.
+- **Setores** — nova tabela `setores` (nome, unidade_id) com RLS + GRANT; ligar no `chamados.novo` e `/perfil`.
+- **Categorias / Subcategorias** — CRUD com nível N1/N2/N3 e SLA por subcategoria (já existe a tabela).
+- **SLA** — visão consolidada (ler/editar `sla_resposta_min` / `sla_solucao_min` por subcategoria).
+- **Auditoria** — leitura de `admin_audit_log` + `chamado_historico` com filtros.
+- **Segurança** — painel resumo (políticas RLS ativas, últimos eventos de role, status MFA dos usuários).
 
-## 1. Ciclo de resolução → validação → encerramento automático
+## Etapa 3 — Segurança corporativa
+- **Restrição de e-mail institucional**: validação em `/auth` (cadastro só aceita domínios `@*.senac.br` / `@senacma.com.br` — me confirme a lista exata quando chegarmos lá) e trigger no banco que bloqueia signup fora do domínio permitido.
+- **MFA (TOTP)**: nova seção em `/perfil` para inscrever autenticador (`supabase.auth.mfa.enroll` → QR → verify) e desinscrever. Tela de challenge no login quando o usuário tem fator ativo.
+- **Política de senha forte** já validada no signup e no `/senha`.
+- Ativar `password_hibp_enabled` (proteção contra senhas vazadas).
 
-**Banco (migration):**
-- Adicionar coluna `prazo_validacao` (timestamptz) em `chamados`, preenchida quando o técnico marca como `resolvido` (= `resolvido_em + 5 dias úteis`).
-- Função `public.adicionar_dias_uteis(ts, n)` para calcular 5 dias úteis (pula sáb/dom).
-- Trigger `BEFORE UPDATE` em `chamados`: quando `status` passa para `resolvido`, define `resolvido_em = now()` e `prazo_validacao`.
-- Função `public.fechar_chamados_expirados()` que percorre chamados `resolvido` com `prazo_validacao < now()` e os move para `fechado` (com `fechado_em = now()`), registrando no histórico (`acao = 'fechamento_automatico'`).
-- Cron job `pg_cron` rodando a cada hora chamando essa função (SQL puro, sem endpoint).
+## Etapa 4 — Exportação CSV + LGPD
+- **Export CSV** na lista `/chamados`, `/fila` e em `/admin → Chamados` (botão "Exportar CSV" com os filtros atuais).
+- **Página pública `/privacidade`** com política LGPD (controlador, finalidade, base legal, direitos do titular, contato do DPO, cookies). Link no rodapé do `/auth` e no menu Perfil.
+- **Consentimento LGPD**: checkbox obrigatório no cadastro com registro em `profiles.lgpd_aceito_em`.
 
-**Front (`chamados.$id.tsx`):**
-- Quando status = `resolvido` e usuário é o solicitante: exibir banner com prazo (`prazo_validacao`), botões **Validar e fechar** (status→`fechado`) e **Reabrir** (status→`reaberto` + `motivo_reabertura`).
-- Mostrar contagem regressiva "Fecha automaticamente em X dias".
+## Detalhes técnicos (referência)
+- Migrações novas: `setores` (com GRANT + RLS), `profiles.lgpd_aceito_em timestamptz`, trigger `auth.users` p/ validar domínio, ajustes em `handle_new_user` para gravar consentimento.
+- Sidebar: refatorar `src/components/app-sidebar.tsx` em 3 conjuntos de itens conforme o perfil dominante (admin > técnico > solicitante).
+- Export CSV no cliente (sem dependência nova; `Blob` + `URL.createObjectURL`).
+- MFA usa exclusivamente as APIs nativas do Supabase Auth (sem segredos externos).
 
----
-
-## 2. Timeline detalhada e exportável da auditoria
-
-**Componente novo `TimelineAuditoria`** dentro de `chamados.$id.tsx`:
-- Lê `chamado_historico` + join com `profiles` para nome do autor.
-- Renderiza linha do tempo vertical com ícone por tipo de ação (`abertura`, `mudanca_status`, `escalonamento`, `atribuicao`, `motivo_escalonamento`, `fechamento_automatico`, `avaliacao`).
-- Cada entrada mostra: timestamp, autor, ação humanizada, detalhes (de → para, motivo, técnico, etc.).
-- Tabela `motivos_escalonamento` (nova) ou — para evitar nova tabela — registrar motivo direto em `chamado_historico.detalhes.motivo` na ação `motivo_escalonamento` (já é o padrão atual). Mantém modelo simples.
-
-**Exportação:**
-- Botão **Exportar CSV** (gera no client com `Blob`) — colunas: `quando, autor, acao, de, para, motivo, detalhes_json`.
-- Botão **Exportar PDF** simples via `window.print()` em rota dedicada `/_authenticated/chamados/$id/auditoria` com layout limpo (sem sidebar), ou impressão da própria seção via CSS `@media print`. Vou usar a abordagem CSV + impressão (sem dependência nova).
-
----
-
-## 3. Alertas automáticos de SLA
-
-**Banco:**
-- Tabela `public.alertas_sla` (`chamado_id`, `tipo` enum [`proximo_vencimento`, `violado`], `criado_em`, `lido_em`, `destinatario_id`).
-- Função `public.verificar_sla()`:
-  - Para chamados `aberto` / `em_atendimento` / `escalonado`:
-    - Se `elapsed >= 80% sla_solucao_min` e não há alerta `proximo_vencimento` → inserir um para `tecnico_id` (ou todos do nível).
-    - Se `elapsed > sla_solucao_min` e não há alerta `violado` → inserir um.
-- Cron `pg_cron` a cada 5 minutos.
-- GRANTs + RLS: usuário vê apenas alertas onde é `destinatario_id` ou é admin/gestor/coordenador.
-
-**Front:**
-- Hook `useAlertasSla()` que faz polling (60s) via supabase + realtime opcional.
-- Sino na sidebar/topbar com badge contendo número de alertas não lidos; dropdown lista alertas com link para o chamado e botão "marcar como lido".
-- Badge no card de cada chamado (`chamados.index.tsx`, `fila.tsx`) quando há alerta ativo (cor amarela `proximo` / vermelha `violado`).
+## O que **não** está incluso (me avise se quiser)
+- App mobile / PWA offline.
+- Integração com AD/LDAP do SENAC (SSO SAML pode ser adicionado depois).
+- Pesquisa de satisfação automatizada por e-mail (a avaliação dentro do chamado já existe).
 
 ---
 
-## Detalhes técnicos
-
-- **Sem novas dependências npm.** CSV gerado com `Blob`/`URL.createObjectURL`. Impressão com CSS.
-- Tipos do Supabase serão regenerados automaticamente após a migration.
-- Cron usa `pg_cron` puro (sem endpoint HTTP, já que tudo é SQL).
-- Função `adicionar_dias_uteis` é determinística — segura para `BEFORE UPDATE`.
-
-## Ordem de execução
-
-1. Migration única: coluna `prazo_validacao`, função dias úteis, trigger validação, função/cron de fechamento automático, tabela `alertas_sla` + RLS + GRANTs, função/cron de verificação SLA.
-2. Atualizar `chamados.$id.tsx` (ações solicitante + componente Timeline + export CSV/print).
-3. Criar hook + componente de notificações de SLA na sidebar.
-4. Badges de SLA nas listas (`chamados.index`, `fila`).
-5. Teste end-to-end via SQL: simular resolução, validar prazo, simular violação SLA.
-
-Posso seguir?
+**Posso começar pela Etapa 1?** Se preferir outra ordem (ex.: começar pela Segurança/MFA), me diga.
