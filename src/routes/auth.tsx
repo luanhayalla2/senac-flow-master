@@ -45,7 +45,11 @@ const emailSchema = z
   .trim()
   .min(1, "Informe seu e-mail")
   .email("E-mail inválido")
-  .max(255);
+  .max(255)
+  .refine(
+    (e) => e.endsWith("@ma.senac.br") || e.endsWith("@senac.br"),
+    "Apenas e-mails institucionais (@ma.senac.br) são permitidos."
+  );
 
 function validarCPF(cpf: string): boolean {
   const c = cpf.replace(/\D/g, "");
